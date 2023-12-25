@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -125,12 +124,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setTextForButton() {
         if (isUpdateOrDelete) {
-            saveButton.text = "Update"
-            clearButton.text = "Delete"
+            saveButton.text = getString(R.string.update_button_text)
+            clearButton.text = getString(R.string.delete_button_text)
         }
         else {
-            saveButton.text = "Save"
-            clearButton.text = "Clear"
+            saveButton.text = getString(R.string.save_button_text)
+            clearButton.text = getString(R.string.clear_button_text)
         }
     }
 }
