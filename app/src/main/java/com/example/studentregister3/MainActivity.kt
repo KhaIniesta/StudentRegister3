@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: StudentViewModel
     private lateinit var studentRecyclerView: RecyclerView
     private lateinit var adapter: StudentRecyclerViewAdapter
+    private lateinit var selectedStudent: Student
+    private var isUpdateOrDelete: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,12 +39,24 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory)[StudentViewModel::class.java]
 
         saveButton.setOnClickListener {
-            saveStudentData()
+            if (isUpdateOrDelete) {
+                updateStudentData()
+                isUpdateOrDelete = false
+            }
+            else {
+                saveStudentData()
+            }
             clearInput()
+            setTextForButton()
         }
 
         clearButton.setOnClickListener {
+            if (isUpdateOrDelete) {
+                deleteStudentData()
+                isUpdateOrDelete = false
+            }
             clearInput()
+            setTextForButton()
         }
 
         initRecyclerView()
@@ -58,14 +73,35 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun updateStudentData() {
+        viewModel.updateStudent(
+            Student(
+                selectedStudent.id,
+                nameEditText.text.toString(),
+                emailEditText.text.toString()
+            )
+        )
+    }
+
+    private fun deleteStudentData() {
+        viewModel.deleteStudent(
+            Student(
+                selectedStudent.id,
+                nameEditText.text.toString(),
+                emailEditText.text.toString()
+            )
+        )
+    }
+
     private fun clearInput() {
         nameEditText.setText("")
         emailEditText.setText("")
     }
-
     private fun initRecyclerView() {
         studentRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = StudentRecyclerViewAdapter()
+        adapter = StudentRecyclerViewAdapter {
+            listItemClicked(it)
+        }
         studentRecyclerView.adapter = adapter
 
         displayStudentList()
@@ -76,6 +112,25 @@ class MainActivity : AppCompatActivity() {
         viewModel.students.observe(this) {
             adapter.setList(it)
             adapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun listItemClicked(student: Student) {
+        selectedStudent = student
+        isUpdateOrDelete = true
+        nameEditText.setText(selectedStudent.name)
+        emailEditText.setText(selectedStudent.email)
+        setTextForButton()
+    }
+
+    private fun setTextForButton() {
+        if (isUpdateOrDelete) {
+            saveButton.text = "Update"
+            clearButton.text = "Delete"
+        }
+        else {
+            saveButton.text = "Save"
+            clearButton.text = "Clear"
         }
     }
 }

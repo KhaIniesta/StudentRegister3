@@ -44,7 +44,7 @@
             android:id="@+id/btnClear"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30sp"
+            android:layout_marginLeft="20sp"
             android:layout_weight="1"
             android:text="Clear"
             android:textSize="20sp" />
