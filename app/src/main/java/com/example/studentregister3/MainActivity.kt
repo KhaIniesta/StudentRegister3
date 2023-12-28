@@ -3,41 +3,29 @@ package com.example.studentregister3
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.studentregister3.databinding.ActivityMainBinding
 import com.example.studentregister3.db.Student
 import com.example.studentregister3.db.StudentDatabase
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var nameEditText: EditText
-    private lateinit var emailEditText: EditText
-    private lateinit var saveButton: Button
-    private lateinit var clearButton: Button
-
+    private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: StudentViewModel
-    private lateinit var studentRecyclerView: RecyclerView
     private lateinit var adapter: StudentRecyclerViewAdapter
     private lateinit var selectedStudent: Student
     private var isUpdateOrDelete: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        nameEditText = findViewById(R.id.etName)
-        emailEditText = findViewById(R.id.etEmail)
-        saveButton = findViewById(R.id.btnSave)
-        clearButton = findViewById(R.id.btnClear)
-        studentRecyclerView = findViewById(R.id.rvStudent)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val dao = StudentDatabase.getInstance(application).studentDAO()
         val factory = StudentViewModelFactory(dao)
         viewModel = ViewModelProvider(this, factory)[StudentViewModel::class.java]
 
-        saveButton.setOnClickListener {
+        binding.btnSave.setOnClickListener {
             if (isUpdateOrDelete) {
                 updateStudentData()
                 isUpdateOrDelete = false
@@ -49,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             setTextForButton()
         }
 
-        clearButton.setOnClickListener {
+        binding.btnClear.setOnClickListener {
             if (isUpdateOrDelete) {
                 deleteStudentData()
                 isUpdateOrDelete = false
@@ -66,8 +54,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.insertStudent(
             Student(
                 0,
-                nameEditText.text.toString(),
-                emailEditText.text.toString()
+                binding.etName.text.toString(),
+                binding.etEmail.text.toString()
             )
         )
     }
@@ -76,8 +64,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.updateStudent(
             Student(
                 selectedStudent.id,
-                nameEditText.text.toString(),
-                emailEditText.text.toString()
+                binding.etName.text.toString(),
+                binding.etEmail.text.toString()
             )
         )
     }
@@ -86,24 +74,29 @@ class MainActivity : AppCompatActivity() {
         viewModel.deleteStudent(
             Student(
                 selectedStudent.id,
-                nameEditText.text.toString(),
-                emailEditText.text.toString()
+                binding.etName.text.toString(),
+                binding.etEmail.text.toString()
             )
         )
     }
 
     private fun clearInput() {
-        nameEditText.setText("")
-        emailEditText.setText("")
+        binding.apply {
+            etName.setText("")
+            etEmail.setText("")
+        }
     }
     private fun initRecyclerView() {
-        studentRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = StudentRecyclerViewAdapter {
-            listItemClicked(it)
-        }
-        studentRecyclerView.adapter = adapter
+        binding.apply {
+            rvStudent.layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = StudentRecyclerViewAdapter {
+                listItemClicked(it)
+            }
+            rvStudent.adapter = adapter
 
-        displayStudentList()
+            displayStudentList()
+
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -117,19 +110,23 @@ class MainActivity : AppCompatActivity() {
     private fun listItemClicked(student: Student) {
         selectedStudent = student
         isUpdateOrDelete = true
-        nameEditText.setText(selectedStudent.name)
-        emailEditText.setText(selectedStudent.email)
+        binding.apply {
+            etName.setText(selectedStudent.name)
+            etEmail.setText(selectedStudent.email)
+        }
         setTextForButton()
     }
 
     private fun setTextForButton() {
-        if (isUpdateOrDelete) {
-            saveButton.text = getString(R.string.update_button_text)
-            clearButton.text = getString(R.string.delete_button_text)
-        }
-        else {
-            saveButton.text = getString(R.string.save_button_text)
-            clearButton.text = getString(R.string.clear_button_text)
+        binding.apply {
+            if (isUpdateOrDelete) {
+                btnSave.text = getString(R.string.update_button_text)
+                btnClear.text = getString(R.string.delete_button_text)
+            }
+            else {
+                btnSave.text = getString(R.string.save_button_text)
+                btnClear.text = getString(R.string.clear_button_text)
+            }
         }
     }
 }
